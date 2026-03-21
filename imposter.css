@@ -1,0 +1,112 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Body */
+body {
+    background: #121212;
+    color: #ffffff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main container */
+body>* {
+    text-align: center;
+}
+
+/* Hide utility (CRITICAL - correct syntax) */
+.hide {
+    display: none !important;
+}
+
+/* Buttons */
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #1f1f1f;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    background: #333;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+/* Start button */
+#start-btn {
+    font-size: 20px;
+    padding: 14px 28px;
+    background: #4caf50;
+}
+
+#start-btn:hover {
+    background: #43a047;
+}
+
+/* Player input section (NO display property here) */
+.playerConfirmation {
+    margin-top: 20px;
+}
+
+/* Input field */
+input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    width: 200px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Error message */
+.low-player {
+    color: #ff5252;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Word display */
+#word-display {
+    margin-top: 30px;
+    font-size: 32px;
+    font-weight: bold;
+    min-height: 60px;
+}
+
+/* Reveal button */
+#reveal-btn {
+    background: #2196f3;
+}
+
+#reveal-btn:hover {
+    background: #1e88e5;
+}
+
+/* Finish button */
+#finish-btn {
+    background: #ff9800;
+    color: black;
+    font: bold;
+}
+
+#finish-btn:hover {
+    background: #fb8c00;
+    color: black;
+    font: bold;
+}
