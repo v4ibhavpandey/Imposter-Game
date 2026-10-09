@@ -9,20 +9,62 @@
 </head>
 
 <body>
-    <button id="start-btn">Start Game</button>
+    <h1 class="app-title">Imposter</h1>
+
+    <div id="online-home">
+        <input type="text" id="name-input" placeholder="Your name" maxlength="15">
+        <button id="create-room-btn">Create Room</button>
+        <p class="divider">or join a friend's room</p>
+        <input type="text" id="code-input" placeholder="CODE" maxlength="4">
+        <button id="join-room-btn">Join Room</button>
+        <p id="room-message"></p>
+    </div>
+
+    <button id="start-btn">Play on one phone (pass &amp; play)</button>
+
+    <div id="lobby" class="hide">
+        <h2 id="lobby-code"></h2>
+        <p>Players in the room:</p>
+        <ul id="player-list"></ul>
+        <button id="start-online-btn" class="hide">Start Game</button>
+        <p id="lobby-message"></p>
+    </div>
+
+    <div id="word-screen" class="hide">
+        <p>Your word is</p>
+        <h1 id="my-word"></h1>
+        <p>Discuss with the others. Don't say the word directly!</p>
+        <h2 id="timer-text"></h2>
+        <button id="skip-btn" class="hide">Start Voting Now</button>
+    </div>
+
+    <div id="vote-screen" class="hide">
+        <h2>Who is the imposter?</h2>
+        <div id="vote-buttons"></div>
+        <p id="vote-status"></p>
+    </div>
+
+    <div id="result-screen" class="hide">
+        <h2 id="result-title"></h2>
+        <p id="result-details"></p>
+        <button id="play-again-btn" class="hide">Play Again</button>
+        <p id="result-wait" class="hide">Waiting for the host to start the next round...</p>
+    </div>
+
     <div class="playerConfirmation hide">
         <p id="Anmt-para">Enter the number of players</p>
-        <input type="number" id="player-count">
+        <input type="number" id="player-count" min="3" max="10">
         <button id="confirm">Confirm</button>
     </div>
     <div class="low-player hide">
-        <p>Select at least 3 or more players</p>
+        <p>Select between 3 and 10 players</p>
     </div>
+
     <p id="word-display"></p>
     <button id="reveal-btn" class="hide">Reveal</button>
     <button id="finish-btn" class="hide">Finish</button>
 
-
+    <script src="/socket.io/socket.io.js"></script>
     <script src="imposter.js"></script>
 </body>
 

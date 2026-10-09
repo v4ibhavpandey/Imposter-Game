@@ -1,0 +1,25 @@
+{
+  "name": "imposter",
+  "version": "1.0.0",
+  "description": "This repository contains a social playable game called Imposter. This can be played with friends and family on social gatherings.",
+  "main": "imposter.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/v4ibhavpandey/Imposter-Game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/v4ibhavpandey/Imposter-Game/issues"
+  },
+  "homepage": "https://github.com/v4ibhavpandey/Imposter-Game#readme",
+  "dependencies": {
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4"
+  }
+}

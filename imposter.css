@@ -3,110 +3,253 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 }
 
-/* Body */
+:root {
+    --bg: #121212;
+    --card: #1c1c1c;
+    --text: #ffffff;
+    --muted: #9a9a9a;
+    --green: #4caf50;
+    --blue: #2196f3;
+    --orange: #ff9800;
+    --red: #ff5252;
+}
+
+/* Body: one centered column, works on phones */
 body {
-    background: #121212;
-    color: #ffffff;
-    height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-/* Main container */
-body>* {
+    gap: 14px;
+    padding: 20px 16px;
     text-align: center;
 }
 
-/* Hide utility (CRITICAL - correct syntax) */
+body>* {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Hide utility */
 .hide {
     display: none !important;
 }
 
+h1 {
+    font-size: 40px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+p {
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.app-title {
+    font-size: 30px;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.divider {
+    color: var(--muted);
+    font-size: 13px;
+}
+
 /* Buttons */
 button {
-    padding: 12px 20px;
-    margin: 10px;
+    padding: 14px 20px;
+    margin: 6px 0;
+    width: 100%;
     border: none;
-    border-radius: 8px;
-    background: #1f1f1f;
+    border-radius: 10px;
+    background: #2a2a2a;
     color: white;
-    font-size: 16px;
+    font-size: 17px;
     cursor: pointer;
     transition: 0.2s ease;
 }
 
 button:hover {
-    background: #333;
+    background: #3a3a3a;
 }
 
 button:active {
-    transform: scale(0.96);
+    transform: scale(0.97);
 }
 
-/* Start button */
-#start-btn {
-    font-size: 20px;
-    padding: 14px 28px;
-    background: #4caf50;
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-#start-btn:hover {
+/* Inputs */
+input {
+    width: 100%;
+    padding: 14px;
+    margin: 6px 0;
+    font-size: 17px;
+    border-radius: 10px;
+    border: 2px solid #2a2a2a;
+    background: #1f1f1f;
+    color: white;
+    text-align: center;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--blue);
+}
+
+#code-input {
+    text-transform: uppercase;
+    letter-spacing: 6px;
+}
+
+/* Cards (online home, lobby, screens) */
+#online-home,
+#lobby,
+#word-screen,
+#vote-screen,
+#result-screen,
+.playerConfirmation {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+/* Primary buttons */
+#create-room-btn,
+#start-online-btn,
+#confirm {
+    background: var(--green);
+}
+
+#create-room-btn:hover,
+#start-online-btn:hover,
+#confirm:hover {
     background: #43a047;
 }
 
-/* Player input section (NO display property here) */
-.playerConfirmation {
-    margin-top: 20px;
+#join-room-btn,
+#reveal-btn,
+#skip-btn {
+    background: var(--blue);
 }
 
-/* Input field */
-input {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: none;
-    width: 200px;
-    text-align: center;
-    margin-top: 10px;
-}
-
-/* Error message */
-.low-player {
-    color: #ff5252;
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-/* Word display */
-#word-display {
-    margin-top: 30px;
-    font-size: 32px;
-    font-weight: bold;
-    min-height: 60px;
-}
-
-/* Reveal button */
-#reveal-btn {
-    background: #2196f3;
-}
-
-#reveal-btn:hover {
+#join-room-btn:hover,
+#reveal-btn:hover,
+#skip-btn:hover {
     background: #1e88e5;
 }
 
-/* Finish button */
-#finish-btn {
-    background: #ff9800;
+#play-again-btn {
+    background: var(--green);
+}
+
+/* Pass and play start button is a secondary option */
+#start-btn {
+    background: transparent;
+    border: 2px solid #333;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+#start-btn:hover {
+    background: #222;
+}
+
+/* Messages */
+#room-message,
+#lobby-message,
+#vote-status,
+.low-player {
+    color: var(--red);
+    font-size: 14px;
+    min-height: 18px;
+}
+
+/* Lobby */
+#lobby-code {
+    font-size: 32px;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+}
+
+#player-list {
+    list-style: none;
+    margin: 10px 0 14px;
+    text-align: left;
+}
+
+#player-list li {
+    background: #262626;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+/* Word screen */
+#my-word {
+    font-size: 44px;
+    margin: 10px 0 16px;
+    color: var(--green);
+    word-break: break-word;
+}
+
+#timer-text {
+    margin: 14px 0 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Voting */
+#vote-buttons button {
+    background: #2a2a2a;
+}
+
+#vote-buttons button:hover:not(:disabled) {
+    background: var(--orange);
     color: black;
-    font: bold;
+}
+
+/* Result */
+#result-title {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+#result-details {
+    color: var(--text);
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+/* Pass and play */
+#word-display {
+    font-size: 30px;
+    font-weight: bold;
+    min-height: 60px;
+    color: var(--text);
+    white-space: pre-line;
+}
+
+#finish-btn {
+    background: var(--orange);
+    color: black;
+    font-weight: bold;
 }
 
 #finish-btn:hover {
     background: #fb8c00;
-    color: black;
-    font: bold;
 }

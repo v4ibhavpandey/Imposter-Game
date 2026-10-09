@@ -1,252 +1,282 @@
-let strtBtn = document.querySelector("#start-btn");
-let playerConfirmation = document.querySelector(".playerConfirmation");//This gets the Div of playerselection.
-let confirmPlayerBtn = document.querySelector("#confirm")
-const playerInput = document.getElementById("player-count")
-let lowPlayer = document.querySelector(".low-player");
-let currPlayer = 0;
-let revealBtn = document.querySelector("#reveal-btn");
-let anmtPara = document.querySelector("#Anmt-para");
-let participants;
+const socket = io();
+
+const strtBtn = document.querySelector("#start-btn");
+const playerConfirmation = document.querySelector(".playerConfirmation");
+const confirmPlayerBtn = document.querySelector("#confirm");
+const playerInput = document.getElementById("player-count");
+const lowPlayer = document.querySelector(".low-player");
+const revealBtn = document.querySelector("#reveal-btn");
+const anmtPara = document.querySelector("#Anmt-para");
 const wordDisplay = document.getElementById("word-display");
-let isWordVisible = false;
 const finishBtn = document.querySelector("#finish-btn");
 
+const onlineHome = document.getElementById("online-home");
+const nameInput = document.getElementById("name-input");
+const codeInput = document.getElementById("code-input");
+const createRoomBtn = document.getElementById("create-room-btn");
+const joinRoomBtn = document.getElementById("join-room-btn");
+const roomMessage = document.getElementById("room-message");
+const lobby = document.getElementById("lobby");
+const lobbyCode = document.getElementById("lobby-code");
+const playerList = document.getElementById("player-list");
+const startOnlineBtn = document.getElementById("start-online-btn");
+const lobbyMessage = document.getElementById("lobby-message");
 
+const wordScreen = document.getElementById("word-screen");
+const myWord = document.getElementById("my-word");
+const timerText = document.getElementById("timer-text");
+const skipBtn = document.getElementById("skip-btn");
 
+const voteScreen = document.getElementById("vote-screen");
+const voteButtons = document.getElementById("vote-buttons");
+const voteStatus = document.getElementById("vote-status");
+
+const resultScreen = document.getElementById("result-screen");
+const resultTitle = document.getElementById("result-title");
+const resultDetails = document.getElementById("result-details");
+const playAgainBtn = document.getElementById("play-again-btn");
+const resultWait = document.getElementById("result-wait");
+
+let participants = 0;
+let currPlayer = 0;
+let isWordVisible = false;
+let imposterIndex, mainWord, imposterWord;
+
+let isHost = false;
+let timerInterval = null;
+
+// ---------- Pass-and-play game ----------
 
 strtBtn.addEventListener("click", () => {
-    strtBtn.classList.add("hide")
-    playerConfirmation.classList.remove("hide")
-})
+    strtBtn.classList.add("hide");
+    onlineHome.classList.add("hide");
+    playerConfirmation.classList.remove("hide");
+});
 
+confirmPlayerBtn.addEventListener("click", async () => {
+    const count = Number(playerInput.value);
 
-
-confirmPlayerBtn.addEventListener("click", () => {
-    if (playerInput.value < 3) {
-        lowPlayer.classList.remove("hide")
-    } else if (playerInput.value > 10) {
-        lowPlayer.classList.remove("hide")
-    } else {
-        participants = Number(playerInput.value);
-        console.log(participants, " players will play")
-
-        lowPlayer.classList.add("hide")
-    }
-    imposterIndex = Math.floor(Math.random() * participants);
-
-
-
-    // Transitioning to next screen.
-
-    confirmPlayerBtn.classList.add("hide")
-    anmtPara.classList.add("hide")
-    playerInput.classList.add("hide")
-    revealBtn.classList.remove("hide")
-    wordDisplay.innerText = "pass the phone to player 1"
-
-})
-
-
-
-revealBtn.addEventListener("click", () => {
-    if (currPlayer >= participants) {
-        wordDisplay.innerText = "All participants know the word";
-
+    if (!Number.isInteger(count) || count < 3 || count > 10) {
+        lowPlayer.querySelector("p").innerText = "Select between 3 and 10 players";
+        lowPlayer.classList.remove("hide");
         return;
     }
 
-    if (isWordVisible === false) {
-        if (currPlayer === imposterIndex) {
-            wordDisplay.innerText = imposterWord;
-        } else {
-            wordDisplay.innerText = mainWord;
-        }
+    try {
+        const res = await fetch(`/api/round?players=${count}`);
+        if (!res.ok) throw new Error("Bad response");
+        const data = await res.json();
+
+        participants = count;
+        imposterIndex = data.imposterIndex;
+        mainWord = data.mainWord;
+        imposterWord = data.imposterWord;
+    } catch (err) {
+        lowPlayer.querySelector("p").innerText = "Could not start the game. Is the server running?";
+        lowPlayer.classList.remove("hide");
+        return;
+    }
+
+    lowPlayer.classList.add("hide");
+    confirmPlayerBtn.classList.add("hide");
+    anmtPara.classList.add("hide");
+    playerInput.classList.add("hide");
+    revealBtn.classList.remove("hide");
+    wordDisplay.innerText = "Pass the phone to player 1";
+});
+
+revealBtn.addEventListener("click", () => {
+    if (!isWordVisible) {
+        wordDisplay.innerText = currPlayer === imposterIndex ? imposterWord : mainWord;
         isWordVisible = true;
     } else {
-
         currPlayer++;
+        isWordVisible = false;
 
         if (currPlayer >= participants) {
             wordDisplay.innerText = "All participants know the word";
             finishBtn.classList.remove("hide");
-            revealBtn.classList.add("hide")
+            revealBtn.classList.add("hide");
         } else {
             wordDisplay.innerText = "Pass phone to player : " + (currPlayer + 1);
         }
-
-        isWordVisible = false;
     }
 });
 
-
 finishBtn.addEventListener("click", () => {
-    wordDisplay.innerText = "Imposter is Player " + (imposterIndex + 1) + " and their word is " + imposterWord + "\n The main word is " + mainWord;
-    finishBtn.classList.add("hide")
-})
+    wordDisplay.innerText =
+        "Imposter is Player " + (imposterIndex + 1) +
+        " and their word is " + imposterWord +
+        "\nThe main word is " + mainWord;
+    finishBtn.classList.add("hide");
+});
 
+// ---------- Online rooms ----------
 
+function enterLobby() {
+    strtBtn.classList.add("hide");
+    onlineHome.classList.add("hide");
+    lobby.classList.remove("hide");
+}
 
-const wordPairs = [
-    ["Dog", "Wolf"],
-    ["Cat", "Tiger"],
-    ["Lion", "Leopard"],
-    ["Horse", "Donkey"],
-    ["Cow", "Buffalo"],
-    ["Goat", "Sheep"],
-    ["Chicken", "Turkey"],
-    ["Duck", "Goose"],
-    ["Crow", "Raven"],
-    ["Eagle", "Hawk"],
-    ["Shark", "Dolphin"],
-    ["Whale", "Shark"],
-    ["Octopus", "Squid"],
-    ["Crab", "Lobster"],
-    ["Ant", "Termite"],
-    ["Bee", "Wasp"],
-    ["Butterfly", "Moth"],
-    ["Spider", "Scorpion"],
-    ["Snake", "Lizard"],
-    ["Frog", "Toad"],
-    ["Tree", "Bush"],
-    ["Flower", "Plant"],
-    ["Leaf", "Petal"],
-    ["Grass", "Weed"],
-    ["Forest", "Jungle"],
-    ["Desert", "Dune"],
-    ["Mountain", "Hill"],
-    ["River", "Stream"],
-    ["Ocean", "Sea"],
-    ["Lake", "Pond"],
-    ["Sun", "Star"],
-    ["Moon", "Planet"],
-    ["Comet", "Asteroid"],
-    ["Galaxy", "Universe"],
-    ["Cloud", "Fog"],
-    ["Rain", "Drizzle"],
-    ["Storm", "Hurricane"],
-    ["Thunder", "Lightning"],
-    ["Wind", "Breeze"],
-    ["Snow", "Hail"],
-    ["Fire", "Flame"],
-    ["Smoke", "Ash"],
-    ["Coal", "Charcoal"],
-    ["Sand", "Dust"],
-    ["Stone", "Rock"],
-    ["Brick", "Tile"],
-    ["Iron", "Steel"],
-    ["Gold", "Silver"],
-    ["Diamond", "Crystal"],
-    ["Glass", "Mirror"],
-    ["Chair", "Stool"],
-    ["Table", "Desk"],
-    ["Bed", "Couch"],
-    ["Sofa", "Recliner"],
-    ["Cup", "Mug"],
-    ["Plate", "Dish"],
-    ["Spoon", "Fork"],
-    ["Knife", "Dagger"],
-    ["Bottle", "Jar"],
-    ["Bucket", "Barrel"],
-    ["Door", "Gate"],
-    ["Window", "Vent"],
-    ["Roof", "Ceiling"],
-    ["Floor", "Ground"],
-    ["Wall", "Fence"],
-    ["House", "Cabin"],
-    ["Apartment", "Flat"],
-    ["Palace", "Castle"],
-    ["Temple", "Shrine"],
-    ["School", "College"],
-    ["Book", "Novel"],
-    ["Magazine", "Newspaper"],
-    ["Pen", "Pencil"],
-    ["Marker", "Highlighter"],
-    ["Paper", "Notebook"],
-    ["Folder", "File"],
-    ["Bag", "Backpack"],
-    ["Suitcase", "Luggage"],
-    ["Clock", "Watch"],
-    ["Phone", "Tablet"],
-    ["Laptop", "Computer"],
-    ["Keyboard", "Typewriter"],
-    ["Mouse", "Trackpad"],
-    ["Camera", "Camcorder"],
-    ["TV", "Monitor"],
-    ["Speaker", "Headphone"],
-    ["Radio", "Walkman"],
-    ["Car", "Truck"],
-    ["Bus", "Van"],
-    ["Bike", "Motorcycle"],
-    ["Train", "Subway"],
-    ["Plane", "Jet"],
-    ["Helicopter", "Drone"],
-    ["Boat", "Ship"],
-    ["Canoe", "Kayak"],
-    ["Submarine", "Submersible"],
-    ["Rocket", "Missile"],
-    ["Doctor", "Nurse"],
-    ["Teacher", "Professor"],
-    ["Student", "Pupil"],
-    ["Chef", "Cook"],
-    ["Farmer", "Gardener"],
-    ["Artist", "Painter"],
-    ["Singer", "Musician"],
-    ["Actor", "Performer"],
-    ["Driver", "Pilot"],
-    ["Police", "Detective"],
-    ["Army", "Navy"],
-    ["King", "Emperor"],
-    ["Queen", "Princess"],
-    ["Prince", "Duke"],
-    ["Knight", "Warrior"],
-    ["Thief", "Robber"],
-    ["Judge", "Lawyer"],
-    ["Priest", "Monk"],
-    ["Scientist", "Researcher"],
-    ["Engineer", "Mechanic"],
-    ["Bread", "Toast"],
-    ["Rice", "Wheat"],
-    ["Pasta", "Noodles"],
-    ["Soup", "Stew"],
-    ["Cake", "Pastry"],
-    ["Cookie", "Biscuit"],
-    ["Chocolate", "Candy"],
-    ["Milk", "Cream"],
-    ["Butter", "Cheese"],
-    ["Tea", "Coffee"],
-    ["Juice", "Smoothie"],
-    ["Soda", "Cola"],
-    ["Beer", "Wine"],
-    ["Salt", "Sugar"],
-    ["Pepper", "Chili"],
-    ["Apple", "Pear"],
-    ["Peach", "Plum"],
-    ["Mango", "Papaya"],
-    ["Banana", "Plantain"],
-    ["Orange", "Tangerine"],
-    ["Lemon", "Lime"],
-    ["Strawberry", "Cherry"],
-    ["Grape", "Blueberry"],
-    ["Potato", "Sweet Potato"],
-    ["Onion", "Garlic"],
-    ["Carrot", "Radish"],
-    ["Cabbage", "Lettuce"],
-    ["Spinach", "Kale"],
-    ["Corn", "Peas"],
-    ["Bean", "Lentil"]
-];
+function stopTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+}
 
-randomIndex = Math.floor(Math.random() * wordPairs.length)
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = String(sec % 60).padStart(2, "0");
+    return m + ":" + s;
+}
 
-let selectedPair = wordPairs[randomIndex];
-let mainWord = selectedPair[0];
-let imposterWord = selectedPair[1];
+createRoomBtn.addEventListener("click", () => {
+    socket.emit("create-room", nameInput.value, (response) => {
+        if (response.error) {
+            roomMessage.innerText = response.error;
+            return;
+        }
+        enterLobby();
+    });
+});
 
+joinRoomBtn.addEventListener("click", () => {
+    socket.emit("join-room", codeInput.value, nameInput.value, (response) => {
+        if (response.error) {
+            roomMessage.innerText = response.error;
+            return;
+        }
+        enterLobby();
+    });
+});
 
+startOnlineBtn.addEventListener("click", () => {
+    socket.emit("start-game", (response) => {
+        if (response.error) {
+            lobbyMessage.innerText = response.error;
+        }
+    });
+});
 
+skipBtn.addEventListener("click", () => {
+    socket.emit("skip-discussion", () => { });
+});
 
+playAgainBtn.addEventListener("click", () => {
+    socket.emit("play-again", () => { });
+});
 
+socket.on("room-update", (room) => {
+    isHost = room.host === socket.id;
 
+    lobbyCode.innerText = "Room code: " + room.code;
+    playerList.innerHTML = "";
 
+    room.players.forEach((p) => {
+        const li = document.createElement("li");
+        let label = p.name;
+        if (p.id === room.host) label += " (host)";
+        if (p.id === socket.id) label += " (you)";
+        li.innerText = label;
+        playerList.appendChild(li);
+    });
 
+    // Only the host sees the host buttons
+    startOnlineBtn.classList.toggle("hide", !isHost);
+    skipBtn.classList.toggle("hide", !isHost);
+    playAgainBtn.classList.toggle("hide", !isHost);
+    resultWait.classList.toggle("hide", isHost);
+});
 
+// Discussion phase: show my word and the countdown
+socket.on("your-word", (data) => {
+    lobby.classList.add("hide");
+    resultScreen.classList.add("hide");
+    voteScreen.classList.add("hide");
+    wordScreen.classList.remove("hide");
+    myWord.innerText = data.word;
+    skipBtn.classList.toggle("hide", !isHost);
+
+    stopTimer();
+    let left = data.seconds;
+    timerText.innerText = "Time left: " + formatTime(left);
+    timerInterval = setInterval(() => {
+        left--;
+        if (left < 0) {
+            stopTimer();
+            return;
+        }
+        timerText.innerText = "Time left: " + formatTime(left);
+    }, 1000);
+});
+
+// Voting phase: one button per other player
+socket.on("voting-start", (data) => {
+    stopTimer();
+    wordScreen.classList.add("hide");
+    voteScreen.classList.remove("hide");
+    voteButtons.innerHTML = "";
+    voteStatus.innerText = "";
+
+    data.players.forEach((p) => {
+        if (p.id === socket.id) return; // can't vote for yourself
+        const btn = document.createElement("button");
+        btn.innerText = p.name;
+        btn.addEventListener("click", () => {
+            socket.emit("cast-vote", p.id, (response) => {
+                if (response.error) {
+                    voteStatus.innerText = response.error;
+                    return;
+                }
+                voteButtons.querySelectorAll("button").forEach((b) => (b.disabled = true));
+                voteStatus.innerText = "You voted for " + p.name + ". Waiting for others...";
+            });
+        });
+        voteButtons.appendChild(btn);
+    });
+});
+
+socket.on("vote-progress", (data) => {
+    // Keep a personal message if I already voted, otherwise show progress
+    const alreadyVoted = voteButtons.querySelector("button:disabled");
+    if (!alreadyVoted) {
+        voteStatus.innerText = "Votes cast: " + data.voted + " / " + data.total;
+    }
+});
+
+// Result phase
+socket.on("game-result", (data) => {
+    stopTimer();
+    wordScreen.classList.add("hide");
+    voteScreen.classList.add("hide");
+    resultScreen.classList.remove("hide");
+
+    resultTitle.innerText = data.crewWins ? "The crew wins!" : "The imposter wins!";
+
+    let text = "";
+    if (data.imposterLeft) {
+        text += "The imposter left the game.\n";
+    } else if (data.votedOutName) {
+        text += "Voted out: " + data.votedOutName + "\n";
+    } else {
+        text += "It was a tie, so nobody was voted out.\n";
+    }
+    text += "\nThe imposter was " + data.imposterName + " (word: " + data.imposterWord + ")";
+    text += "\nThe main word was " + data.mainWord;
+    text += "\n\nVotes:\n";
+    data.tally.forEach((t) => {
+        text += t.name + ": " + t.votes + "\n";
+    });
+    resultDetails.innerText = text;
+
+    playAgainBtn.classList.toggle("hide", !isHost);
+    resultWait.classList.toggle("hide", isHost);
+});
+
+socket.on("back-to-lobby", () => {
+    stopTimer();
+    resultScreen.classList.add("hide");
+    voteScreen.classList.add("hide");
+    wordScreen.classList.add("hide");
+    lobby.classList.remove("hide");
+});
